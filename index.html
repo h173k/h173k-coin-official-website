@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>h173k — The Only Truly Useful Crypto</title>
+<meta name="description" content="h173k brings trustless peer-to-peer commerce to everyone. Powered by MAD smart contracts on Solana.">
+<meta name="theme-color" content="#000000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:#000;color:#fff;font-family:'Outfit',sans-serif;font-weight:300;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:#0a0a0a}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:3px}
+
+/* ── BG Streaks ── */
+.bg-streak,.bg-streak-2{position:fixed;top:-50%;left:-100%;width:300%;height:200%;pointer-events:none;z-index:0}
+.bg-streak{background:linear-gradient(75deg,transparent 0%,transparent 32%,rgba(255,255,255,0.03) 40%,rgba(255,255,255,0.07) 48%,rgba(255,255,255,0.03) 56%,transparent 64%,transparent 100%);animation:slideStreak 8s ease-in-out infinite}
+.bg-streak-2{top:-30%;background:linear-gradient(100deg,transparent 0%,transparent 40%,rgba(248,113,113,0.02) 48%,rgba(248,113,113,0.04) 52%,rgba(248,113,113,0.02) 56%,transparent 64%,transparent 100%);animation:slideStreak2 12s ease-in-out infinite}
+@keyframes slideStreak{0%{transform:translateX(-60%) rotate(-18deg)}100%{transform:translateX(60%) rotate(-18deg)}}
+@keyframes slideStreak2{0%{transform:translateX(60%) rotate(12deg)}100%{transform:translateX(-60%) rotate(12deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── Nav ── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:16px 24px;transition:all .3s ease}
+.nav.scrolled{background:rgba(0,0,0,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06)}
+.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.nav-logo-group{display:flex;align-items:center;gap:14px}
+.nav-logo{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;letter-spacing:2px}
+.logo-mark{color:#f87171;margin-right:2px}
+.price-chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:5px 12px;font-size:13px}
+.price-value{font-family:'Space Mono',monospace;font-weight:700;font-size:13px;color:#fff}
+.price-change{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px;letter-spacing:.5px}
+.price-change.up{color:#4ade80;background:rgba(74,222,128,0.1)}
+.price-change.down{color:#f87171;background:rgba(248,113,113,0.1)}
+.price-loading{font-size:11px;color:rgba(255,255,255,0.3);font-style:italic}
+.nav-links{display:flex;align-items:center;gap:28px}
+.nav-link{color:rgba(255,255,255,0.6);font-size:14px;font-weight:400;transition:color .2s}
+.nav-link:hover{color:#fff}
+.nav-cta{background:#fff;color:#000;padding:8px 20px;border-radius:8px;font-size:14px;font-weight:500;transition:opacity .2s}
+.nav-cta:hover{opacity:.9}
+
+@media(max-width:768px){
+  .nav-links .nav-link{display:none}
+  .price-chip{padding:4px 8px}
+  .price-change{display:none}
+}
+
+/* ── Buttons ── */
+.btn-primary{display:inline-flex;align-items:center;gap:8px;background:#fff;color:#000;padding:14px 32px;border-radius:10px;font-size:16px;font-weight:600;border:none;transition:transform .15s,box-shadow .15s}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(255,255,255,0.1)}
+.btn-secondary{display:inline-flex;align-items:center;gap:8px;background:transparent;color:#fff;padding:14px 32px;border-radius:10px;font-size:16px;font-weight:400;border:1px solid rgba(255,255,255,0.25);transition:border-color .2s}
+.btn-secondary:hover{border-color:rgba(255,255,255,0.5)}
+
+/* ── Fade-in ── */
+.fade-in{opacity:0;transform:translateY(40px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+.fade-in.visible{opacity:1;transform:translateY(0)}
+
+/* ── Hero ── */
+.hero{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:180px 24px 80px;text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:100px;padding:6px 18px;font-size:13px;font-weight:400;color:rgba(255,255,255,0.7);margin-bottom:32px}
+.hero-badge-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;animation:pulse 2s ease-in-out infinite}
+.hero-title{font-size:clamp(40px,7vw,80px);font-weight:800;line-height:1.05;letter-spacing:-.03em;margin-bottom:24px}
+.hero-em{font-style:normal;background:linear-gradient(135deg,#f87171 0%,#fb923c 50%,#fbbf24 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:clamp(16px,2vw,20px);color:rgba(255,255,255,0.55);line-height:1.7;max-width:640px;margin:0 auto 36px}
+.hero-ctas{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.hero-trust{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:48px;flex-wrap:wrap}
+.trust-item{display:flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,0.5)}
+.trust-divider{width:1px;height:16px;background:rgba(255,255,255,0.15)}
+
+/* ── Stats ── */
+.stats-section{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:40px 24px 80px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2px}
+.stat-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);padding:36px 28px;text-align:center}
+.stat-value{font-family:'Space Mono',monospace;font-size:36px;font-weight:700;letter-spacing:1px;margin-bottom:4px}
+.stat-label{font-size:14px;font-weight:500;color:rgba(255,255,255,0.7);margin-bottom:6px;text-transform:uppercase;letter-spacing:2px}
+.stat-sub{font-size:13px;color:rgba(255,255,255,0.35);line-height:1.4}
+
+/* ── Verify ── */
+.verify-section{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:40px 24px 80px}
+.verify-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:48px 40px;position:relative}
+.verify-quote{font-family:'Space Mono',monospace;font-size:120px;line-height:1;color:rgba(248,113,113,0.15);position:absolute;top:10px;left:24px}
+.verify-title{font-family:'Space Mono',monospace;font-size:clamp(22px,4vw,32px);font-weight:700;margin-bottom:16px;position:relative}
+.verify-text{font-size:16px;color:rgba(255,255,255,0.55);line-height:1.7;position:relative;margin-bottom:24px}
+.verify-link{display:inline-flex;align-items:center;gap:10px;color:#fff;font-size:15px;font-weight:500;padding:10px 20px;border:1px solid rgba(255,255,255,0.2);border-radius:8px;transition:border-color .2s;position:relative}
+.verify-link:hover{border-color:rgba(255,255,255,0.5)}
+
+/* ── Section ── */
+.section{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:80px 24px}
+.section-header{text-align:center;margin-bottom:56px}
+.section-tag{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;letter-spacing:4px;color:#f87171;text-transform:uppercase}
+.section-title{font-size:clamp(28px,5vw,48px);font-weight:700;line-height:1.15;margin-top:12px;margin-bottom:16px;letter-spacing:-.02em}
+.section-sub{font-size:17px;color:rgba(255,255,255,0.45);line-height:1.7;max-width:640px;margin:0 auto}
+
+/* ── Diagram Tabs ── */
+.diagram-tabs{display:flex;justify-content:center;gap:4px;background:rgba(255,255,255,0.04);border-radius:10px;padding:4px;max-width:480px;margin:0 auto 36px}
+.diagram-tab{flex:1;padding:10px 16px;background:transparent;border:none;color:rgba(255,255,255,0.5);font-size:14px;font-weight:400;font-family:'Outfit',sans-serif;border-radius:8px;transition:all .2s}
+.diagram-tab:hover{color:rgba(255,255,255,0.7)}
+.diagram-tab.active{background:rgba(255,255,255,0.1);color:#fff;font-weight:500}
+
+/* ── Diagram Card ── */
+.diagram-card{max-width:640px;margin:0 auto;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:36px 32px}
+.diagram-title{font-size:20px;font-weight:600;margin-bottom:32px;text-align:center}
+.diagram-step{display:flex;align-items:flex-start;gap:16px;position:relative}
+.step-number{width:40px;height:40px;min-width:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;font-family:'Space Mono',monospace;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#fff}
+.step-number.danger{background:rgba(248,113,113,0.15);color:#f87171;border-color:rgba(248,113,113,0.3)}
+.step-content{flex:1;padding-top:2px;padding-bottom:20px}
+.step-label{font-size:15px;font-weight:500;margin-bottom:4px}
+.step-desc{font-size:13px;color:rgba(255,255,255,0.45);line-height:1.5}
+.step-connector{position:absolute;left:19px;top:42px}
+
+/* ── Use Cases ── */
+.usecase-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2px}
+.usecase-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);padding:32px 28px;transition:background .3s}
+.usecase-card:hover{background:rgba(255,255,255,0.05)}
+.usecase-icon{font-size:28px;margin-bottom:16px}
+.usecase-title{font-size:17px;font-weight:600;margin-bottom:8px}
+.usecase-desc{font-size:14px;color:rgba(255,255,255,0.4);line-height:1.6}
+
+/* ── Investment ── */
+.invest-section{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:40px 24px 80px}
+.invest-card{background:linear-gradient(135deg,rgba(248,113,113,0.06) 0%,rgba(251,191,36,0.04) 100%);border:1px solid rgba(248,113,113,0.15);border-radius:16px;padding:48px 40px}
+.invest-points{display:flex;flex-direction:column;gap:14px;margin-top:28px}
+.invest-point{display:flex;align-items:center;gap:12px;font-size:15px;color:rgba(255,255,255,0.7)}
+.invest-point svg{flex-shrink:0}
+
+/* ── Guides ── */
+.video-card{display:flex;align-items:center;gap:24px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:24px 28px;max-width:640px;margin:0 auto 32px;transition:border-color .2s}
+.video-card:hover{border-color:rgba(255,255,255,0.2)}
+.video-play{width:64px;height:64px;min-width:64px;border-radius:14px;background:rgba(248,113,113,0.2);border:1px solid rgba(248,113,113,0.3);display:flex;align-items:center;justify-content:center}
+.video-label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#f87171;margin-bottom:6px}
+.video-title{font-size:16px;font-weight:500}
+.guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:2px;max-width:1000px;margin:0 auto}
+.guide-card{display:block;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);padding:28px 24px;transition:background .2s}
+.guide-card:hover{background:rgba(255,255,255,0.06)}
+.guide-icon{font-size:24px;display:block;margin-bottom:14px}
+.guide-title{font-size:16px;font-weight:600;margin-bottom:6px}
+.guide-desc{font-size:13px;color:rgba(255,255,255,0.4);line-height:1.5;margin-bottom:16px}
+.guide-link{font-size:13px;color:#f87171;font-weight:500}
+
+/* ── CTA ── */
+.cta-section{position:relative;z-index:1;padding:80px 24px;text-align:center}
+.cta-inner{max-width:600px;margin:0 auto}
+.cta-title{font-size:clamp(28px,5vw,44px);font-weight:700;line-height:1.15;margin-bottom:16px;letter-spacing:-.02em}
+.cta-sub{font-size:17px;color:rgba(255,255,255,0.45);line-height:1.7;margin-bottom:36px}
+.cta-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+
+/* ── Footer ── */
+.footer{position:relative;z-index:1;border-top:1px solid rgba(255,255,255,0.06);padding:40px 24px}
+.footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.footer-logo{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;letter-spacing:2px}
+.footer-links{display:flex;gap:24px;flex-wrap:wrap}
+.footer-link{color:rgba(255,255,255,0.4);font-size:14px;transition:color .2s}
+.footer-link:hover{color:#fff}
+.footer-mint{width:100%;text-align:center;font-size:11px;font-family:'Space Mono',monospace;color:rgba(255,255,255,0.2);margin-top:16px;word-break:break-all}
+
+/* ── Diagram panels ── */
+.diagram-panel{display:none}
+.diagram-panel.active{display:block}
+
+@media(max-width:600px){
+  .hero{padding:140px 20px 60px}
+  .invest-card{padding:32px 24px}
+  .verify-card{padding:36px 24px}
+  .video-card{flex-direction:column;text-align:center}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .usecase-grid{grid-template-columns:1fr}
+  .guide-grid{grid-template-columns:1fr 1fr}
+  .footer-inner{justify-content:center;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- BG -->
+<div class="bg-streak"></div>
+<div class="bg-streak-2"></div>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <div class="nav-logo-group">
+      <div class="nav-logo"><span class="logo-mark">$</span>H173K</div>
+      <div class="price-chip" id="priceChip">
+        <span class="price-loading">loading…</span>
+      </div>
+    </div>
+    <div class="nav-links">
+      <a href="javascript:void(0)" class="nav-link" onclick="smoothScroll('how-it-works')">How It Works</a>
+      <a href="javascript:void(0)" class="nav-link" onclick="smoothScroll('mad')">MAD</a>
+      <a href="javascript:void(0)" class="nav-link" onclick="smoothScroll('guides')">Guides</a>
+      <a href="https://h173k-wallet.pages.dev/" target="_blank" rel="noopener noreferrer" class="nav-cta">Launch Wallet</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="fade-in">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      Live on Solana
+    </div>
+  </div>
+  <div class="fade-in" style="transition-delay:.1s">
+    <h1 class="hero-title">The Only <em class="hero-em">Truly Useful</em> Crypto</h1>
+  </div>
+  <div class="fade-in" style="transition-delay:.2s">
+    <p class="hero-sub">h173k brings trustless peer-to-peer commerce to everyone — no middlemen, no restrictions, no borders. Powered by MAD (Mutually Assured Destruction) smart contracts on Solana.</p>
+  </div>
+  <div class="fade-in" style="transition-delay:.3s">
+    <div class="hero-ctas">
+      <a href="https://h173k-wallet.pages.dev/" target="_blank" rel="noopener noreferrer" class="btn-primary">Open h173k Wallet <span style="font-size:18px">→</span></a>
+      <a href="javascript:void(0)" onclick="smoothScroll('how-it-works')" class="btn-secondary">How It Works</a>
+    </div>
+  </div>
+  <div class="fade-in" style="transition-delay:.4s">
+    <div class="hero-trust">
+      <span class="trust-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Open Source
+      </span>
+      <span class="trust-divider"></span>
+      <span class="trust-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        On-Chain Verified
+      </span>
+      <span class="trust-divider"></span>
+      <span class="trust-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Instant Settlement
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats-section">
+  <div class="stats-grid">
+    <div class="fade-in"><div class="stat-card">
+      <div class="stat-value" data-counter="10000000" data-suffix="">10M</div>
+      <div class="stat-label">Total Supply</div>
+      <div class="stat-sub">Less than half of Bitcoin's 21M</div>
+    </div></div>
+    <div class="fade-in" style="transition-delay:.1s"><div class="stat-card">
+      <div class="stat-value">SOL</div>
+      <div class="stat-label">Network</div>
+      <div class="stat-sub">Blazing fast, ultra-low fees</div>
+    </div></div>
+    <div class="fade-in" style="transition-delay:.2s"><div class="stat-card">
+      <div class="stat-value">MAD</div>
+      <div class="stat-label">Security Model</div>
+      <div class="stat-sub">Game-theory backed trustless trade</div>
+    </div></div>
+    <div class="fade-in" style="transition-delay:.3s"><div class="stat-card">
+      <div class="stat-value">0</div>
+      <div class="stat-label">Middlemen Required</div>
+      <div class="stat-sub">True peer-to-peer, always</div>
+    </div></div>
+  </div>
+</section>
+
+<!-- VERIFY -->
+<section class="verify-section">
+  <div class="fade-in">
+    <div class="verify-card">
+      <div class="verify-quote">"</div>
+      <h2 class="verify-title">Don't Trust — Verify</h2>
+      <p class="verify-text">h173k Wallet is fully open source. Every line of code, every smart contract interaction, every transaction — auditable by anyone, anytime.</p>
+      <a href="https://github.com/h173k/h173k-wallet" target="_blank" rel="noopener noreferrer" class="verify-link">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        View on GitHub →
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS / MAD -->
+<section id="how-it-works" class="section">
+  <div class="fade-in">
+    <div class="section-header">
+      <span class="section-tag">HOW IT WORKS</span>
+      <h2 class="section-title">MAD Smart Contracts</h2>
+      <p class="section-sub">Mutually Assured Destruction — a game-theory mechanism where both parties lock deposits. Fraud means everyone loses, so honesty becomes the only rational choice.</p>
+    </div>
+  </div>
+
+  <div class="fade-in" style="transition-delay:.1s" id="mad">
+    <div class="diagram-tabs">
+      <button class="diagram-tab active" data-tab="sell">Selling Crypto</button>
+      <button class="diagram-tab" data-tab="buy">Buying Crypto</button>
+      <button class="diagram-tab" data-tab="goods">Buying Goods</button>
+    </div>
+  </div>
+
+  <div class="fade-in" style="transition-delay:.2s">
+    <!-- SELL -->
+    <div class="diagram-panel active" id="panel-sell">
+      <div class="diagram-card">
+        <h3 class="diagram-title">Selling Crypto for FIAT</h3>
+        <div class="diagram-step"><div class="step-number">1</div><div class="step-content"><div class="step-label">Seller creates MAD contract</div><div class="step-desc">Locks crypto value + equal security deposit (2× total)</div></div><div class="step-connector"><svg width="2" height="32" viewBox="0 0 2 32"><line x1="1" y1="0" x2="1" y2="32" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-dasharray="4 4"/></svg></div></div>
+        <div class="diagram-step"><div class="step-number">2</div><div class="step-content"><div class="step-label">Contract code shared</div><div class="step-desc">Seller sends the unique contract code to the buyer</div></div><div class="step-connector"><svg width="2" height="32" viewBox="0 0 2 32"><line x1="1" y1="0" x2="1" y2="32" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-dasharray="4 4"/></svg></div></div>
+        <div class="diagram-step"><div class="step-number">3</div><div class="step-content"><div class="step-label">Buyer accepts &amp; deposits</div><div class="step-desc">Buyer locks an equal security deposit — both sides now have skin in the game</div></div><div class="step-connector"><svg width="2" height="32" viewBox="0 0 2 32"><line x1="1" y1="0" x2="1" y2="32" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-dasharray="4 4"/></svg></div></div>
+        <div class="diagram-step"><div class="step-number">4</div><div class="step-content"><div class="step-label">Buyer sends FIAT payment</div><div class="step-desc">Cash, bank transfer, or any agreed method — off-chain</div></div><div class="step-connector"><svg width="2" height="32" viewBox="0 0 2 32"><line x1="1" y1="0" x2="1" y2="32" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-dasharray="4 4"/></svg></div></div>
+        <div class="diagram-step"><div class="step-number">5</div><div class="step-content"><div class="step-label">Both confirm release</div><div class="step-desc">Each party confirms independently. Deposits return, crypto transfers to buyer</div></div><div class="step-connector"><svg width="2" height="32" viewBox="0 0 2 32"><line x1="1" y1="0" x2="1" y2="32" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-dasharray="4 4"/></svg></div></div>
+        <div class="diagram-step"><div class="step-number danger">⚠</div><div class="step-content"><div class="step-label">Cheat = Burn</div><div class="step-desc">If either party refuses to confirm, ALL locked funds are destroyed. No one profits from fraud.</div></div></div>
+      </div>
+    </div>
+
+    <!-- BUY -->
+    <div class="diagram-panel" id="panel-buy">
+      <div class="diagram-card">
+        <h3 class="diagram-title">Buying Crypto with FIAT</h3>
+        <div class="diagram-step"><div class="step-number">1</div><div class="step-content"><div class="step-label">Request contract code</div><div class="step-desc">Ask the crypto seller for the MAD contract code</div></div><div class="step-connector"><svg width="2" height="32" viewBox="0 0 2 32"><line x1="1" y1="0" x2="1" y2="32" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-dasharray="4 4"/></svg></div></div>
+        <div class="diagram-step"><div class="step-number">2</div><div class="step-content"><div class="step-label">Accept contract in wallet</div><div class="step-desc">Paste the code, review the value, and lock your security deposit</div></div><div class="step-connector"><svg width="2" height="32" viewBox="0 0 2 32"><line x1="1" y1="0" x2="1" y2="32" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-dasharray="4 4"/></svg></div></div>
+        <div class="diagram-step"><div class="step-number">3</div><div class="step-content"><div class="step-label">Send payment to seller</div><div class="step-desc">Transfer the agreed FIAT amount (equal to deposit value) to the seller</div></div><div class="step-connector"><svg width="2" height="32" viewBox="0 0 2 32"><line x1="1" y1="0" x2="1" y2="32" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-dasharray="4 4"/></svg></div></div>
+        <div class="diagram-step"><div class="step-number">4</div><div class="step-content"><div class="step-label">Confirm release on your end</div><div class="step-desc">Signal that you've sent payment and are ready to finalize</div></div><div class="step-connector"><svg width="2" height="32" viewBox="0 0 2 32"><line x1="1" y1="0" x2="1" y2="32" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-dasharray="4 4"/></svg></div></div>
+        <div class="diagram-step"><div class="step-number">5</div><div class="step-content"><div class="step-label">Seller confirms receipt</div><div class="step-desc">Once the seller verifies your payment, they also confirm release</div></div><div class="step-connector"><svg width="2" height="32" viewBox="0 0 2 32"><line x1="1" y1="0" x2="1" y2="32" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-dasharray="4 4"/></svg></div></div>
+        <div class="diagram-step"><div class="step-number">6</div><div class="step-content"><div class="step-label">Crypto + deposits released</div><div class="step-desc">You receive the crypto, both security deposits return to their owners</div></div></div>
+      </div>
+    </div>
+
+    <!-- GOODS -->
+    <div class="diagram-panel" id="panel-goods">
+      <div class="diagram-card">
+        <h3 class="diagram-title">Buying Physical Goods from Strangers</h3>
+        <div class="diagram-step"><div class="step-number">1</div><div class="step-content"><div class="step-label">Buyer creates MAD contract</div><div class="step-desc">Locks payment value + equal security deposit in h173k</div></div><div class="step-connector"><svg width="2" height="32" viewBox="0 0 2 32"><line x1="1" y1="0" x2="1" y2="32" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-dasharray="4 4"/></svg></div></div>
+        <div class="diagram-step"><div class="step-number">2</div><div class="step-content"><div class="step-label">Seller accepts &amp; deposits</div><div class="step-desc">Seller locks the same amount as security deposit</div></div><div class="step-connector"><svg width="2" height="32" viewBox="0 0 2 32"><line x1="1" y1="0" x2="1" y2="32" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-dasharray="4 4"/></svg></div></div>
+        <div class="diagram-step"><div class="step-number">3</div><div class="step-content"><div class="step-label">Seller ships the goods</div><div class="step-desc">Physical product, digital goods, services — anything</div></div><div class="step-connector"><svg width="2" height="32" viewBox="0 0 2 32"><line x1="1" y1="0" x2="1" y2="32" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-dasharray="4 4"/></svg></div></div>
+        <div class="diagram-step"><div class="step-number">4</div><div class="step-content"><div class="step-label">Buyer receives &amp; verifies</div><div class="step-desc">Inspects the goods to ensure they match the agreement</div></div><div class="step-connector"><svg width="2" height="32" viewBox="0 0 2 32"><line x1="1" y1="0" x2="1" y2="32" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-dasharray="4 4"/></svg></div></div>
+        <div class="diagram-step"><div class="step-number">5</div><div class="step-content"><div class="step-label">Both confirm release</div><div class="step-desc">Deposits return, payment transfers to the seller</div></div><div class="step-connector"><svg width="2" height="32" viewBox="0 0 2 32"><line x1="1" y1="0" x2="1" y2="32" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-dasharray="4 4"/></svg></div></div>
+        <div class="diagram-step"><div class="step-number">🛡</div><div class="step-content"><div class="step-label">Mutual protection</div><div class="step-desc">Neither party can scam the other — both lose equally if the deal fails.</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section class="section">
+  <div class="fade-in">
+    <div class="section-header">
+      <span class="section-tag">BEYOND CRYPTO</span>
+      <h2 class="section-title">MAD Contracts for Everything</h2>
+      <p class="section-sub">MAD isn't just for trading crypto. It's a universal trust protocol. Buy and sell real-world goods from complete strangers — anywhere on earth.</p>
+    </div>
+  </div>
+  <div class="usecase-grid">
+    <div class="fade-in"><div class="usecase-card"><div class="usecase-icon">💱</div><h3 class="usecase-title">P2P Crypto Exchange</h3><p class="usecase-desc">Buy or sell any crypto without centralized exchanges. No KYC, no limits, no borders.</p></div></div>
+    <div class="fade-in" style="transition-delay:.08s"><div class="usecase-card"><div class="usecase-icon">📦</div><h3 class="usecase-title">Remote Purchases</h3><p class="usecase-desc">Order physical goods from unknown sellers worldwide. The MAD deposit guarantees both sides deliver.</p></div></div>
+    <div class="fade-in" style="transition-delay:.16s"><div class="usecase-card"><div class="usecase-icon">🤝</div><h3 class="usecase-title">Freelance Payments</h3><p class="usecase-desc">Pay or get paid for services with zero fraud risk. No payment reversals, no chargebacks.</p></div></div>
+    <div class="fade-in" style="transition-delay:.24s"><div class="usecase-card"><div class="usecase-icon">🌍</div><h3 class="usecase-title">Cross-Border Trade</h3><p class="usecase-desc">Send value across borders without bank restrictions. Available to everyone, everywhere.</p></div></div>
+    <div class="fade-in" style="transition-delay:.32s"><div class="usecase-card"><div class="usecase-icon">🔒</div><h3 class="usecase-title">Escrow Without Middlemen</h3><p class="usecase-desc">Traditional escrow charges 3-5%. h173k MAD costs only Solana network fees.</p></div></div>
+    <div class="fade-in" style="transition-delay:.4s"><div class="usecase-card"><div class="usecase-icon">🏪</div><h3 class="usecase-title">Marketplace Commerce</h3><p class="usecase-desc">Enable trust between anonymous buyers and sellers — the foundation for permissionless marketplaces.</p></div></div>
+  </div>
+</section>
+
+<!-- INVESTMENT -->
+<section class="invest-section">
+  <div class="fade-in">
+    <div class="invest-card">
+      <span class="section-tag">EARLY STAGE</span>
+      <h2 class="section-title" style="text-align:left;margin-top:12px">Massive Investment Opportunity</h2>
+      <p class="section-sub" style="text-align:left;max-width:none">The entire P2P crypto market is up for grabs — and with it, all remote commerce powered by MAD contracts. h173k is at a very early stage of market development. Projects that become infrastructure tend to capture enormous value.</p>
+      <div class="invest-points">
+        <div class="invest-point"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Less than half the supply of Bitcoin — only 10M h173k vs 21M BTC</span></div>
+        <div class="invest-point"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>High score on Gecko Terminal — verified and tracked</span></div>
+        <div class="invest-point"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>First-mover advantage in trustless P2P commerce</span></div>
+        <div class="invest-point"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Open source, community-driven, zero VC overhead</span></div>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:28px">
+        <a href="https://www.geckoterminal.com/solana/pools/J9ED7D3pR7Uw5W6Y52p1Mq3Gfkmumg8fHRvLEiHLL2S7?utm_source=coingecko&utm_medium=referral&utm_campaign=searchresults" target="_blank" rel="noopener noreferrer" class="btn-primary">View on Gecko Terminal →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GUIDES -->
+<section id="guides" class="section">
+  <div class="fade-in">
+    <div class="section-header">
+      <span class="section-tag">GET STARTED</span>
+      <h2 class="section-title">Guides &amp; Tutorials</h2>
+      <p class="section-sub">Everything you need to start using h173k — from wallet setup to your first MAD contract.</p>
+    </div>
+  </div>
+
+  <div class="fade-in" style="transition-delay:.1s">
+    <a href="https://youtu.be/mFaD667nyqA" target="_blank" rel="noopener noreferrer" class="video-card">
+      <div class="video-play">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </div>
+      <div>
+        <div class="video-label">VIDEO TUTORIAL</div>
+        <div class="video-title">How to Use h173k Wallet — Full Walkthrough</div>
+      </div>
+    </a>
+  </div>
+
+  <div class="guide-grid">
+    <div class="fade-in" style="transition-delay:.15s">
+      <a href="https://drive.google.com/file/d/1jxwEYChHt9KIQFGhT-kFxanVbhr7h0nU/view?usp=drive_link" target="_blank" rel="noopener noreferrer" class="guide-card">
+        <span class="guide-icon">🛒</span>
+        <h3 class="guide-title">How to Buy h173k</h3>
+        <p class="guide-desc">Purchase h173k tokens using Phantom Wallet and Raydium</p>
+        <span class="guide-link">Read PDF Guide →</span>
+      </a>
+    </div>
+    <div class="fade-in" style="transition-delay:.25s">
+      <a href="https://drive.google.com/file/d/14dTlsUgi-z6hbf1vxILGlJCJqHrH2Uf5/view?usp=drive_link" target="_blank" rel="noopener noreferrer" class="guide-card">
+        <span class="guide-icon">⚙️</span>
+        <h3 class="guide-title">Set Up h173k Wallet</h3>
+        <p class="guide-desc">Install the PWA, configure RPC, and create or import your wallet</p>
+        <span class="guide-link">Read PDF Guide →</span>
+      </a>
+    </div>
+    <div class="fade-in" style="transition-delay:.35s">
+      <a href="https://drive.google.com/file/d/1f6KfMJqYeaNq14ZX4GZBxzTvnDv4Duh6/view?usp=drive_link" target="_blank" rel="noopener noreferrer" class="guide-card">
+        <span class="guide-icon">📥</span>
+        <h3 class="guide-title">Buy Crypto (MAD)</h3>
+        <p class="guide-desc">Use a MAD contract to safely purchase crypto with FIAT</p>
+        <span class="guide-link">Read PDF Guide →</span>
+      </a>
+    </div>
+    <div class="fade-in" style="transition-delay:.45s">
+      <a href="https://drive.google.com/file/d/1oUlRr0NjXRypBbTuuTa3LGHSTfpy_qKE/view?usp=drive_link" target="_blank" rel="noopener noreferrer" class="guide-card">
+        <span class="guide-icon">📤</span>
+        <h3 class="guide-title">Sell Crypto (MAD)</h3>
+        <p class="guide-desc">Use a MAD contract to safely sell crypto for FIAT</p>
+        <span class="guide-link">Read PDF Guide →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="fade-in">
+    <div class="cta-inner">
+      <h2 class="cta-title">Start Trading Without Borders</h2>
+      <p class="cta-sub">Install h173k Wallet, get some SOL and h173k, and start using MAD contracts today. No sign-up. No KYC. No restrictions.</p>
+      <div class="cta-buttons">
+        <a href="https://h173k-wallet.pages.dev/" target="_blank" rel="noopener noreferrer" class="btn-primary">Launch h173k Wallet →</a>
+        <a href="https://t.me/+V4JY9fR5QYYwZmU0" target="_blank" rel="noopener noreferrer" class="btn-secondary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+          Join Telegram
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-logo"><span class="logo-mark">$</span>H173K</div>
+    <div class="footer-links">
+      <a href="https://h173k-wallet.pages.dev/" target="_blank" rel="noopener noreferrer" class="footer-link">Wallet</a>
+      <a href="https://github.com/h173k/h173k-wallet" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub</a>
+      <a href="https://www.geckoterminal.com/solana/pools/J9ED7D3pR7Uw5W6Y52p1Mq3Gfkmumg8fHRvLEiHLL2S7" target="_blank" rel="noopener noreferrer" class="footer-link">Gecko Terminal</a>
+      <a href="https://t.me/+V4JY9fR5QYYwZmU0" target="_blank" rel="noopener noreferrer" class="footer-link">Telegram</a>
+    </div>
+    <div class="footer-mint">Mint: 173AvoJNQoWsaR1wdYTMNLUqZc1b7d4SzB2ZZRZVyz3</div>
+  </div>
+</footer>
+
+<script>
+// ── Smooth scroll helper ──
+function smoothScroll(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── Nav scroll ──
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 60);
+}, { passive: true });
+
+// ── Fade-in on scroll ──
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.15 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// ── Diagram tabs ──
+document.querySelectorAll('.diagram-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.diagram-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.diagram-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ── Live price ──
+async function fetchPrice() {
+  const chip = document.getElementById('priceChip');
+  try {
+    const res = await fetch('https://api.dexscreener.com/latest/dex/pairs/solana/J9ED7D3pR7Uw5W6Y52p1Mq3Gfkmumg8fHRvLEiHLL2S7');
+    const data = await res.json();
+    if (data && data.pair) {
+      const price = parseFloat(data.pair.priceUsd);
+      const change = parseFloat(data.pair.priceChange?.h24 ?? 0);
+      const isUp = change >= 0;
+
+      let formatted;
+      if (price < 0.0001) formatted = '$' + price.toExponential(2);
+      else if (price < 0.01) formatted = '$' + price.toFixed(6);
+      else if (price < 1) formatted = '$' + price.toFixed(4);
+      else formatted = '$' + price.toFixed(2);
+
+      chip.innerHTML = `
+        <span class="price-value">${formatted}</span>
+        <span class="price-change ${isUp ? 'up' : 'down'}">${isUp ? '▲' : '▼'} ${Math.abs(change).toFixed(2)}%</span>
+      `;
+    }
+  } catch (e) {
+    chip.innerHTML = '<span class="price-value">$H173K</span>';
+  }
+}
+fetchPrice();
+setInterval(fetchPrice, 30000);
+
+// ── Counter animation ──
+const counterEl = document.querySelector('[data-counter]');
+if (counterEl) {
+  let started = false;
+  const cObserver = new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting && !started) {
+      started = true;
+      const end = 10;
+      const duration = 2000;
+      const startTime = performance.now();
+      function animate(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        counterEl.textContent = Math.floor(eased * end).toLocaleString() + 'M';
+        if (progress < 1) requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+    }
+  }, { threshold: 0.5 });
+  cObserver.observe(counterEl);
+}
+</script>
+</body>
+</html>
